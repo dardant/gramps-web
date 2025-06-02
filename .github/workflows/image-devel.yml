@@ -52,8 +52,7 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
           IMAGE_TAG: DT_${{ steps.get-timestamp.outputs.timestamp }}      
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --platform linux/amd64,linux/arm/v7,linux/arm64 -f Dockerfile.devel
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG          
+          docker build --push -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --platform linux/amd64,linux/arm/v7,linux/arm64 -f Dockerfile.devel 
             
       - name: Clean up dangling images
         run: docker image prune -f -a
