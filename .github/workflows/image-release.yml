@@ -48,28 +48,29 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: tag and push release image
+      - name: Build-and-push Gramps web image to ECR
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
-          IMAGE_TAG: DT_${{ steps.get-timestamp.outputs.timestamp }}           
+          REGISTRY:   ${{ steps.login-ecr.outputs.registry }}      # 12345678.dkr.ecr…
+          REPO:       ${{ secrets.REPO_NAME }}                     # e.g. grampsweb
         run: |
-          docker build --push \         
-            --tag $ECR_REGISTRY/$ECR_REPOSITORY/grampsweb:dt \
-            --tag $ECR_REGISTRY/$ECR_REPOSITORY/grampsweb:latest \
-            --platform linux/amd64,linux/arm/v7,linux/arm64 .
+          docker buildx build \
+            --push \
+            --platform linux/amd64,linux/arm64,linux/arm/v7 \
+            --tag $REGISTRY/$REPO:dt \
+            --tag $REGISTRY/$REPO:latest \
+            -f Dockerfile.devel .
             
       - name: Clean up dangling images
         run: docker image prune -f -a    
         
       - name: tag and push release nginx image
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
-          IMAGE_TAG: DT_${{ steps.get-timestamp.outputs.timestamp }}       
+          REGISTRY:   ${{ steps.login-ecr.outputs.registry }}      # 12345678.dkr.ecr…
+          REPO:       ${{ secrets.REPO_NAME }}                     # e.g. grampsweb     
         run: |
-          docker build --push \
-            --tag $ECR_REGISTRY/$ECR_REPOSITORY/grampsjs:dt \
-            --tag $ECR_REGISTRY/$ECR_REPOSITORY/grampsjs:latest \
-            --platform linux/amd64,linux/arm/v7,linux/arm64 \
-            -f Dockerfile.nginx .    
+          docker buildx build \
+            --push \
+            --platform linux/amd64,linux/arm64,linux/arm/v7 \
+            --tag $REGISTRY/grampsjs:dt \
+            --tag $REGISTRY/grampsjs:latest \
+            -f Dockerfile.nginx .  
