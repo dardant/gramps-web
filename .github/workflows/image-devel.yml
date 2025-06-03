@@ -53,6 +53,10 @@ jobs:
         run: echo "::set-output name=timestamp::$(date +'%Y-%m-%d-%H-%M')"
           
       - name: tag and push devel image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
+          IMAGE_TAG: DT_${{ steps.get-timestamp.outputs.timestamp }}        
         run: |
           docker build --push \
             --tag $ECR_REGISTRY/$ECR_REPOSITORY/grampsweb:latest-devel \
@@ -63,6 +67,10 @@ jobs:
         run: docker image prune -f -a
         
       - name: tag and push devel nginx image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
+          IMAGE_TAG: DT_${{ steps.get-timestamp.outputs.timestamp }}        
         run: |
           docker build --push \
             --tag $ECR_REGISTRY/$ECR_REPOSITORY/grampsjs:latest-devel \
