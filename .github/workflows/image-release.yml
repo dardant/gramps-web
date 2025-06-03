@@ -42,7 +42,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: us-east-2
           
       - name: Login to Amazon ECR
         id: login-ecr
@@ -54,25 +54,19 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
           IMAGE_TAG: DT_${{ steps.get-timestamp.outputs.timestamp }}           
         run: |
-          docker build --push \
-            --tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.event.release.tag_name }} \
-            --tag $ECR_REGISTRY/$ECR_REPOSITORY:latest \
-            --platform linux/amd64,linux/arm/v7,linux/arm64 .
-            
-      - name: Clean up dangling images
-        run: docker image prune -f -a
-        
-      - name: tag and push release image
-        run: |
-          docker build --push \
-            --tag $ECR_REGISTRY/$ECR_REPOSITORY/grampsweb:${{ github.event.release.tag_name }} \   
+          docker build --push \         
+            --tag $ECR_REGISTRY/$ECR_REPOSITORY/grampsweb:${{ github.event.release.tag_name }} \
             --tag $ECR_REGISTRY/$ECR_REPOSITORY/grampsweb:latest \
             --platform linux/amd64,linux/arm/v7,linux/arm64 .
             
       - name: Clean up dangling images
-        run: docker image prune -f -a
+        run: docker image prune -f -a    
         
       - name: tag and push release nginx image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
+          IMAGE_TAG: DT_${{ steps.get-timestamp.outputs.timestamp }}       
         run: |
           docker build --push \
             --tag $ECR_REGISTRY/$ECR_REPOSITORY/grampsjs:${{ github.event.release.tag_name }} \
