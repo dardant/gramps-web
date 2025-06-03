@@ -56,8 +56,8 @@ jobs:
           docker buildx build \
             --push \
             --platform linux/amd64,linux/arm64,linux/arm/v7 \
-            --tag $REGISTRY/$REPO:dt \
-            --tag $REGISTRY/$REPO:latest \
+            --tag $REGISTRY/grampsweb:dt1 \
+            --tag $REGISTRY/grampsweb:latest \
             -f Dockerfile.devel .
             
       - name: Clean up dangling images
@@ -71,6 +71,6 @@ jobs:
           docker buildx build \
             --push \
             --platform linux/amd64,linux/arm64,linux/arm/v7 \
-            --tag $REGISTRY/grampsjs:dt \
+            --tag $REGISTRY/grampsjs:dt1 \
             --tag $REGISTRY/grampsjs:latest \
             -f Dockerfile.nginx .  
